@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as L from "lucide-react";
 import { site, stats, pages, bars, cats, evidence, delivery, testimonials, videos, screenshots, tools, type Ev } from "@/lib/data";
+const BP = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const url = (p: string) => (p.startsWith("/") ? BP + p : p);
 
 function Img({ srcs, ...p }: { srcs: string[] } & React.ImgHTMLAttributes<HTMLImageElement>) {
   const [i, setI] = useState(0);
   useEffect(() => setI(0), [srcs[0]]);
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={srcs[i]} onError={() => i < srcs.length - 1 && setI(i + 1)} {...p} />;
+  return <img src={url(srcs[i])} onError={() => i < srcs.length - 1 && setI(i + 1)} {...p} />;
 }
 
 function Rich({ t }: { t: string }) {
@@ -45,7 +47,26 @@ export default function Portfolio() {
   const evTabs = <div role="tablist" className="mb-8 flex flex-wrap gap-2">{["Documents", "Screenshots", "Videos"].map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={tabBtn(tab === t)}>{t}{t === "Screenshots" ? ` (${screenshots.length})` : t === "Videos" ? ` (${videos.length})` : ""}</button>)}</div>;
   const gallery = <div><figure className="bg-dune p-3"><Img srcs={[sh.file.replace(".svg", ".jpg"), sh.file]} alt={sh.caption} className="w-full" /><figcaption className="p-3"><b>Screenshot {shot + 1} of {screenshots.length}.</b> {sh.caption}</figcaption></figure>
     <div className="mt-4 flex items-center justify-between"><button onClick={() => nav(-1)} className={navBtn}><L.ChevronLeft size={18} />Previous</button><span>{shot + 1} / {screenshots.length}</span><button onClick={() => nav(1)} className={navBtn}>Next<L.ChevronRight size={18} /></button></div></div>;
-  const vids = <ul className="grid gap-6 sm:grid-cols-2">{videos.map((v) => <li key={v.file} className="bg-dune"><video controls preload="none" poster={v.poster} className="aspect-video w-full bg-black"><source src={v.file} type="video/mp4" /></video><div className="p-4"><p className="font-bold">{v.title}</p><p className="text-base">{v.caption}</p></div></li>)}</ul>;
+  const vids = (
+    <ul className="grid gap-6 sm:grid-cols-2">
+      {videos.map((v) => (
+        <li key={v.file} className="bg-dune">
+          <video
+            controls
+            preload="none"
+            poster={url(v.poster)}
+            className="aspect-video w-full bg-black"
+          >
+            <source src={url(v.file)} type="video/mp4" />
+          </video>
+          <div className="p-4">
+            <p className="font-bold">{v.title}</p>
+            <p className="text-base">{v.caption}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
   const quotes = <div className="mt-14"><h2 className="text-3xl font-bold md:text-4xl">Testimonials</h2><p className="mt-3 text-base font-bold text-oxide">What students had to say.</p>
     <div className="mt-6 grid gap-6 md:grid-cols-2">{testimonials.map((t) => <blockquote key={t.who} className="border-l-4 border-ochre bg-dune p-6"><p className="italic">“{t.text}”</p><footer className="mt-3 text-base font-bold">{t.who}<span className="font-normal"> · {t.role}</span></footer></blockquote>)}</div></div>;
   const techView = (
@@ -84,7 +105,7 @@ export default function Portfolio() {
       ))}
     </div>
   );
-  const cvUrl = `${site.cv}#view=FitH`;
+  const cvUrl = `${url(site.cv)}#view=FitH`;
 
   return (
     <>
@@ -116,7 +137,7 @@ export default function Portfolio() {
               <div className="absolute inset-[7px] rounded-full bg-ikota" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/splash.jpg"
+                src={url("/splash.jpg")}
                 alt=""
                 className="absolute inset-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)] rounded-full object-cover"
               />
@@ -219,7 +240,13 @@ export default function Portfolio() {
       </header>
 
       {slug === "home" ? (
-        <div className="bg-ikota"><Img srcs={["/banners/home.jpg", "/banners/home.svg"]} alt="" className="mx-auto block h-auto max-h-[480px] w-full object-cover" /></div>
+        <div className="bg-ikota">
+          <Img
+            srcs={["/banners/home.jpg", "/banners/home.svg"]}
+            alt=""
+            className="mx-auto block h-auto max-h-[480px] w-full object-cover"
+          />
+        </div>
       ) : (
         <div className="h-4" />
       )}
@@ -245,7 +272,7 @@ export default function Portfolio() {
           <h2 className="mt-8 text-3xl font-bold">{site.name}</h2>
           <p className="mt-1">{site.title}</p>
           <p className="mt-6">
-            <a className="lnk" href={site.cv} download>
+            <a className="lnk" href={url(site.cv)} download>
               Curriculum vitae
             </a>
           </p>
@@ -302,8 +329,6 @@ export default function Portfolio() {
 
               {slug === "impact" && (
                 <div className="mt-10 space-y-5">
-              
-                 
                   {bars.map(([l, v]) => (
                     <div key={l}>
                       <div className="flex justify-between text-base">
@@ -436,7 +461,7 @@ export default function Portfolio() {
                       Full Screen
                     </button>
                     <a
-                      href={site.cv}
+                      href={url(site.cv)}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-2 rounded border border-white/60 px-4 py-2 hover:bg-white/10"
@@ -445,7 +470,7 @@ export default function Portfolio() {
                       Open in New Tab
                     </a>
                     <a
-                      href={site.cv}
+                      href={url(site.cv)}
                       download
                       className="ml-auto inline-flex items-center gap-2 rounded border border-white/60 px-4 py-2 hover:bg-white/10"
                     >
@@ -569,7 +594,7 @@ export default function Portfolio() {
                                 >
                                   View
                                 </button>
-                                <a className="lnk" href={e.file} download>
+                                <a className="lnk" href={url(e.file)} download>
                                   Download
                                 </a>
                               </div>
@@ -618,7 +643,7 @@ export default function Portfolio() {
             </div>
             {open.kind === "pdf" ? (
               <iframe
-                src={open.file}
+                src={url(open.file)}
                 title={open.title}
                 className="h-[calc(100%-3.5rem)] w-full"
               />
