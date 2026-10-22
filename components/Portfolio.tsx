@@ -2,20 +2,55 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as L from "lucide-react";
-import { site, stats, pages, bars, cats, evidence, delivery, testimonials, videos, screenshots, tools, type Ev } from "@/lib/data";
+import {
+  site,
+  stats,
+  pages,
+  bars,
+  cats,
+  evidence,
+  delivery,
+  testimonials,
+  videos,
+  screenshots,
+  tools,
+  type Ev,
+} from "@/lib/data";
 const BP = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const url = (p: string) => (p.startsWith("/") ? BP + p : p);
 
-function Img({ srcs, ...p }: { srcs: string[] } & React.ImgHTMLAttributes<HTMLImageElement>) {
+function Img({
+  srcs,
+  ...p
+}: { srcs: string[] } & React.ImgHTMLAttributes<HTMLImageElement>) {
   const [i, setI] = useState(0);
   useEffect(() => setI(0), [srcs[0]]);
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url(srcs[i])} onError={() => i < srcs.length - 1 && setI(i + 1)} {...p} />;
+  return (
+    <img
+      src={url(srcs[i])}
+      onError={() => i < srcs.length - 1 && setI(i + 1)}
+      {...p}
+    />
+  );
 }
 
 function Rich({ t }: { t: string }) {
   const parts = t.split(/(\[[^\]]+\]\([^)]+\))/g);
-  return <>{parts.map((s, i) => { const m = s.match(/^\[([^\]]+)\]\(([^)]+)\)$/); return m ? <a key={i} className="lnk" href={m[2]}>{m[1]}</a> : s; })}</>;
+  return (
+    <>
+      {parts.map((s, i) => {
+        const m = s.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+        return m ? (
+          <a key={i} className="lnk" href={m[2]}>
+            {m[1]}
+          </a>
+        ) : (
+          s
+        );
+      })}
+    </>
+  );
 }
 
 export default function Portfolio() {
@@ -27,62 +62,231 @@ export default function Portfolio() {
   const [open, setOpen] = useState<Ev | null>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { const t = setTimeout(() => setLoading(false), 2400); return () => clearTimeout(t); }, []);
-  const [tab, setTab] = useState("Documents"); const [shot, setShot] = useState(0); const [yr, setYr] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 2400);
+    return () => clearTimeout(t);
+  }, []);
+  const [tab, setTab] = useState("Documents");
+  const [shot, setShot] = useState(0);
+  const [yr, setYr] = useState(0);
   const cv = useRef<HTMLDivElement>(null);
   const page = pages.find((p) => p.slug === slug) ?? pages[0];
   const menuPages = pages.filter((p) => p.slug !== "home");
-  const shown = menuPages.slice(0, 5), rest = menuPages.slice(5);
+  const shown = menuPages.slice(0, 5),
+    rest = menuPages.slice(5);
 
-  useEffect(() => { const h = () => { const s = location.hash.slice(1); if (pages.some((p) => p.slug === s)) setSlug(s); }; h(); window.addEventListener("hashchange", h); return () => window.removeEventListener("hashchange", h); }, []);
-  useEffect(() => { window.scrollTo({ top: 0 }); document.title = `${page.title} | ${site.name}`; }, [slug]);
-  useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === "Escape") { setOpen(null); setMore(false); setMenu(false); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, []);
+  useEffect(() => {
+    const h = () => {
+      const s = location.hash.slice(1);
+      if (pages.some((p) => p.slug === s)) setSlug(s);
+    };
+    h();
+    window.addEventListener("hashchange", h);
+    return () => window.removeEventListener("hashchange", h);
+  }, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    document.title = `${page.title} | ${site.name}`;
+  }, [slug]);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(null);
+        setMore(false);
+        setMenu(false);
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, []);
 
-  const go = (s: string) => { location.hash = s; setMore(false); setMenu(false); };
-  const hits = evidence.filter((e) => (cat === "All" || e.cat === cat) && (e.title + e.cat + e.id).toLowerCase().includes(q.toLowerCase()));
-  const nav = (n: number) => setShot((shot + n + screenshots.length) % screenshots.length);
-  const sh = screenshots[shot], dl = delivery[yr];
-  const tabBtn = (on: boolean) => `border px-4 py-2 ${on ? "border-oxide bg-oxide text-white" : "border-ikota/40 hover:bg-dune"}`;
-  const navBtn = "inline-flex items-center gap-2 bg-ikota px-5 py-3 text-white hover:bg-oxide";
-  const evTabs = <div role="tablist" className="mb-8 flex flex-wrap gap-2">{["Documents", "Screenshots", "Videos"].map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={tabBtn(tab === t)}>{t}{t === "Screenshots" ? ` (${screenshots.length})` : t === "Videos" ? ` (${videos.length})` : ""}</button>)}</div>;
-  const gallery = <div><figure className="bg-dune p-3"><Img srcs={[sh.file.replace(".svg", ".jpg"), sh.file]} alt={sh.caption} className="w-full" /><figcaption className="p-3"><b>Screenshot {shot + 1} of {screenshots.length}.</b> {sh.caption}</figcaption></figure>
-    <div className="mt-4 flex items-center justify-between"><button onClick={() => nav(-1)} className={navBtn}><L.ChevronLeft size={18} />Previous</button><span>{shot + 1} / {screenshots.length}</span><button onClick={() => nav(1)} className={navBtn}>Next<L.ChevronRight size={18} /></button></div></div>;
-  const vids = (
-    <ul className="grid gap-6 sm:grid-cols-2">
-      {videos.map((v) => (
-        <li key={v.file} className="bg-dune">
-          <video
-            controls
-            preload="none"
-            poster={url(v.poster)}
-            className="aspect-video w-full bg-black"
-          >
-            <source src={url(v.file)} type="video/mp4" />
-          </video>
-          <div className="p-4">
-            <p className="font-bold">{v.title}</p>
-            <p className="text-base">{v.caption}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
+  const go = (s: string) => {
+    location.hash = s;
+    setMore(false);
+    setMenu(false);
+  };
+  const hits = evidence.filter(
+    (e) =>
+      (cat === "All" || e.cat === cat) &&
+      (e.title + e.cat + e.id).toLowerCase().includes(q.toLowerCase()),
   );
-  const quotes = <div className="mt-14"><h2 className="text-3xl font-bold md:text-4xl">Testimonials</h2><p className="mt-3 text-base font-bold text-oxide">What students had to say.</p>
-    <div className="mt-6 grid gap-6 md:grid-cols-2">{testimonials.map((t) => <blockquote key={t.who} className="border-l-4 border-ochre bg-dune p-6"><p className="italic">“{t.text}”</p><footer className="mt-3 text-base font-bold">{t.who}<span className="font-normal"> · {t.role}</span></footer></blockquote>)}</div></div>;
+  const nav = (n: number) =>
+    setShot((shot + n + screenshots.length) % screenshots.length);
+  const sh = screenshots[shot],
+    dl = delivery[yr];
+  const tabBtn = (on: boolean) =>
+    `border px-4 py-2 ${on ? "border-oxide bg-oxide text-white" : "border-ikota/40 hover:bg-dune"}`;
+  const navBtn =
+    "inline-flex items-center gap-2 bg-ikota px-5 py-3 text-white hover:bg-oxide";
+  const evTabs = (
+    <div role="tablist" className="mb-8 flex flex-wrap gap-2">
+      {["Documents", "Screenshots", "Videos"].map((t) => (
+        <button
+          key={t}
+          role="tab"
+          aria-selected={tab === t}
+          onClick={() => setTab(t)}
+          className={tabBtn(tab === t)}
+        >
+          {t}
+          {t === "Screenshots"
+            ? ` (${screenshots.length})`
+            : t === "Videos"
+              ? ` (${videos.length})`
+              : ""}
+        </button>
+      ))}
+    </div>
+  );
+  const gallery = (
+    <div>
+      <figure className="bg-dune p-3">
+        <Img
+          srcs={[sh.file.replace(".svg", ".jpg"), sh.file]}
+          alt={sh.caption}
+          className="w-full"
+        />
+        <figcaption className="p-3">
+          <b>
+            Screenshot {shot + 1} of {screenshots.length}.
+          </b>{" "}
+          {sh.caption}
+        </figcaption>
+      </figure>
+      <div className="mt-4 flex items-center justify-between">
+        <button onClick={() => nav(-1)} className={navBtn}>
+          <L.ChevronLeft size={18} />
+          Previous
+        </button>
+        <span>
+          {shot + 1} / {screenshots.length}
+        </span>
+        <button onClick={() => nav(1)} className={navBtn}>
+          Next
+          <L.ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+  const vids = (
+    <div>
+      <p className="mb-6">
+        I have promised to upload more content on my YouTube channel{" "}
+        <a className="lnk" href={site.youtube} target="_blank" rel="noreferrer">
+          Hayi Suka, Learn!
+        </a>
+        .
+      </p>
+      <ul className="grid gap-6 sm:grid-cols-2">
+        {videos.map((v) => (
+          <li key={v.youtube ?? v.file} className="bg-dune">
+            {v.youtube ? (
+              <iframe
+                className="aspect-video w-full"
+                src={`https://www.youtube-nocookie.com/embed/${v.youtube}`}
+                title={v.title}
+                loading="lazy"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                controls
+                preload="none"
+                poster={v.poster ? url(v.poster) : undefined}
+                className="aspect-video w-full bg-black"
+              >
+                <source src={url(v.file ?? "")} type="video/mp4" />
+              </video>
+            )}
+            <div className="p-4">
+              <p className="font-bold">{v.title}</p>
+              {v.caption && <p className="text-base">{v.caption}</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  const quotes = (
+    <div className="mt-14">
+      <h2 className="text-3xl font-bold md:text-4xl">Testimonials</h2>
+      <p className="mt-3 text-base font-bold text-oxide">
+        What students had to say.
+      </p>
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+        {testimonials.map((t) => (
+          <blockquote
+            key={t.who}
+            className="border-l-4 border-ochre bg-dune p-6"
+          >
+            <p className="italic">“{t.text}”</p>
+            <footer className="mt-3 text-base font-bold">
+              {t.who}
+              <span className="font-normal"> · {t.role}</span>
+            </footer>
+          </blockquote>
+        ))}
+      </div>
+    </div>
+  );
   const techView = (
     <div className="mt-12">
       <p className="font-bold">Tools</p>
-      <ul className="mt-3 flex flex-wrap gap-2">{tools.map((t) => <li key={t.slug}><button onClick={() => document.getElementById(`tool-${t.slug}`)?.scrollIntoView({ behavior: "smooth" })} className="border border-ikota/40 px-3 py-1 text-base hover:bg-dune">{t.name}</button></li>)}</ul>
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {tools.map((t) => (
+          <li key={t.slug}>
+            <button
+              onClick={() =>
+                document
+                  .getElementById(`tool-${t.slug}`)
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="border border-ikota/40 px-3 py-1 text-base hover:bg-dune"
+            >
+              {t.name}
+            </button>
+          </li>
+        ))}
+      </ul>
       <div className="mt-14 space-y-24">
         {tools.map((t) => (
           <section key={t.slug} id={`tool-${t.slug}`} className="scroll-mt-28">
             <h2 className="text-3xl font-bold md:text-4xl">{t.name}</h2>
-            {([["Why it was used", t.why], ["How it was used", t.how], ["Impact on student learning", t.impact]] as [string, string][]).map(([h, x]) => (
-              <div key={h} className="mt-6"><h3 className="text-xl font-bold">{h}</h3><p className="mt-2"><Rich t={x} /></p></div>
+            {(
+              [
+                ["Why it was used", t.why],
+                ["How it was used", t.how],
+                ["Impact on student learning", t.impact],
+              ] as [string, string][]
+            ).map(([h, x]) => (
+              <div key={h} className="mt-6">
+                <h3 className="text-xl font-bold">{h}</h3>
+                <p className="mt-2">
+                  <Rich t={x} />
+                </p>
+              </div>
             ))}
             <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {([["platform", "The platform"], ["use", "In use during tutoring"]] as [string, string][]).map(([k, c]) => (
-                <figure key={k} className="bg-dune p-3"><Img srcs={[`/evidence/technology/${t.slug}-${k}.jpg`, `/evidence/technology/${t.slug}-${k}.svg`]} alt={`${t.name}: ${c}`} className="w-full" /><figcaption className="mt-2 text-base">{t.name}: {c}</figcaption></figure>
+              {(
+                [
+                  ["platform", "The platform"],
+                  ["use", "In use during tutoring"],
+                ] as [string, string][]
+              ).map(([k, c]) => (
+                <figure key={k} className="bg-dune p-3">
+                  <Img
+                    srcs={[
+                      `/evidence/technology/${t.slug}-${k}.jpg`,
+                      `/evidence/technology/${t.slug}-${k}.svg`,
+                    ]}
+                    alt={`${t.name}: ${c}`}
+                    className="w-full"
+                  />
+                  <figcaption className="mt-2 text-base">
+                    {t.name}: {c}
+                  </figcaption>
+                </figure>
               ))}
             </div>
           </section>
@@ -92,15 +296,59 @@ export default function Portfolio() {
   );
   const deliveryView = (
     <div className="mt-10">
-      <div role="tablist" className="flex flex-wrap gap-2">{delivery.map((x, i) => <button key={x.year} role="tab" aria-selected={yr === i} onClick={() => setYr(i)} className={tabBtn(yr === i)}>{x.year}: {x.role}</button>)}</div>
-      <h2 className="mt-10 text-4xl font-bold md:text-5xl">{dl.year}: {dl.role}</h2>
+      <div role="tablist" className="flex flex-wrap gap-2">
+        {delivery.map((x, i) => (
+          <button
+            key={x.year}
+            role="tab"
+            aria-selected={yr === i}
+            onClick={() => setYr(i)}
+            className={tabBtn(yr === i)}
+          >
+            {x.year}: {x.role}
+          </button>
+        ))}
+      </div>
+      <h2 className="mt-10 text-4xl font-bold md:text-5xl">
+        {dl.year}: {dl.role}
+      </h2>
       {dl.sections.map((s) => (
         <section key={s.h} className="mt-12">
           <h3 className="text-2xl font-bold md:text-3xl">{s.h}</h3>
-          {s.text?.map((t) => <p key={t} className="mt-5"><Rich t={t} /></p>)}
-          {s.list && <ul className="mt-5 list-disc space-y-2 pl-6">{s.list.map((x) => <li key={x}><Rich t={x} /></li>)}</ul>}
-          {s.after?.map((t) => <p key={t} className="mt-5"><Rich t={t} /></p>)}
-          {s.rows.length > 0 && <dl className="mt-5 space-y-4">{s.rows.map(([k, v], i) => <div key={k + i} className="grid gap-1 md:grid-cols-[220px_1fr] md:gap-6"><dt className="font-bold">{k}</dt><dd><Rich t={v} /></dd></div>)}</dl>}
+          {s.text?.map((t) => (
+            <p key={t} className="mt-5">
+              <Rich t={t} />
+            </p>
+          ))}
+          {s.list && (
+            <ul className="mt-5 list-disc space-y-2 pl-6">
+              {s.list.map((x) => (
+                <li key={x}>
+                  <Rich t={x} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {s.after?.map((t) => (
+            <p key={t} className="mt-5">
+              <Rich t={t} />
+            </p>
+          ))}
+          {s.rows.length > 0 && (
+            <dl className="mt-5 space-y-4">
+              {s.rows.map(([k, v], i) => (
+                <div
+                  key={k + i}
+                  className="grid gap-1 md:grid-cols-[220px_1fr] md:gap-6"
+                >
+                  <dt className="font-bold">{k}</dt>
+                  <dd>
+                    <Rich t={v} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </section>
       ))}
     </div>

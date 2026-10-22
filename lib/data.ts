@@ -12,13 +12,14 @@ export const site = {
     ["WhatsApp", "https://wa.me/27838615468", "MessageCircle"],
   ] as [string, string, string][],
   cv: "/Simamkele-Yawa-CV.pdf",
+  youtube: "https://www.youtube.com/@HayiSukaLearn",
   github: "https://github.com/SIMAMKELE2001",
 };
 export const stats = [
   ["Years of tutoring", "3"],
-  ["Students per session", "[±20]"],
-  ["Weekly hours", "[3+]"],
-  ["Estimated impact", "[75%]"],
+  ["Students per session", "±20"],
+  ["Weekly hours", "3+"],
+  ["Estimated impact", "75%"],
 ];
 export type Item = {
   h: string;
@@ -45,7 +46,7 @@ export const pages: Page[] = [
     slug: "home",
     label: "Welcome",
     title: "Hello there!",
-    lead: "Development Software III tutor at Iyunivesithi Walter Sisulu",
+    lead: "Development Software III tutor at iYunivesithi Walter Sisulu",
     intro: [
       "I am an Advanced Diploma in ICT in Applications Development student, Development Software III tutor, and aspiring academic and software professional who is passionate about technology, education, new knowledge, and teaching. Over the past three years, I have supported students in programming, database systems, software development, and project-based work.",
     ],
@@ -222,13 +223,13 @@ export const pages: Page[] = [
       {
         h: "Advanced Diploma in ICT Applications Development",
         rows: [
-          ["Institution", "Iyunivesithi Walter Sisulu, Potsdam, East London"],
+          ["Institution", "iYunivesithi Walter Sisulu, Potsdam, East London"],
           ["Year", "4th"],
           [
             "Major subjects",
             "Development Software IV, Advanced Development Software IV, Software Engineering IV, Research Methodology",
           ],
-          ["Research area", "Inclusive education (mini-dissertation)"],
+          ["Research", "Inclusive education (mini-dissertation)"],
         ],
       },
     ],
@@ -1070,7 +1071,6 @@ export const cats = [
   "Student feedback",
   "Certificates",
   "Records of attendances",
-  "Letters of appreciation",
 ];
 export type Ev = {
   id: string;
@@ -1082,14 +1082,14 @@ export type Ev = {
 export const evidence: Ev[] = [
   {
     id: "EV-004",
-    title: "2024 - 2026 student feedback summary",
+    title: "2024 - 2026 Collected Students' Feedback",
     cat: "Student feedback",
     kind: "pdf",
-    file: "/evidence/student-feedback-summary.pdf",
+    file: "/evidence/student-feedback-summary.xlsx",
   },
   {
     id: "EV-005",
-    title: "Diploma Certificate",
+    title: "Diploma Completion Letter",
     cat: "Certificates",
     kind: "image",
     file: "/evidence/academic-certificate.jpg",
@@ -1110,17 +1110,10 @@ export const evidence: Ev[] = [
   },
   {
     id: "EV-008",
-    title: "Records of registers",
-    cat: "Records of registers",
+    title: "Proof of Work",
+    cat: "This is the proof of only registers that were submitted online",
     kind: "pdf",
     file: "/evidence/consultation-register.pdf",
-  },
-  {
-    id: "EV-012",
-    title: "Letters from lecturers",
-    cat: "Letters of appreciation",
-    kind: "pdf",
-    file: "/evidence/letter-from-lecturer.pdf",
   },
 ];
 export const testimonials = [
@@ -1131,11 +1124,23 @@ export const testimonials = [
   },
   {
     who: "Elsie Keetse (0727653300)",
-    role: "2025 technical Programming I student",
+    role: "2025 Technical Programming I student",
     text: "Need to focus more on basics because if the structure is not well built at the foundation will fall. So, don't run to difficult exercises without checking if students have good basics of knowledge.",
   },
+  {
+    who: "Thandi Moloi (0721783842)",
+    role: "2024 Technical Programming I & 2026 Advanced Diploma student",
+    text: "Sima used to give everyone individual attention which worked great because it caters for shy studets who are scared to raise their hands and speak up in class. So he was very helpful and hes's always available afterhours too.",
+  },
 ];
-export const videos = [
+export type Video = {
+  title: string;
+  caption: string;
+  file?: string;
+  poster?: string;
+  youtube?: string;
+};
+export const videos: Video[] = [
   {
     title: "Strings",
     caption: "Online interactive tutorial on Teams.",
@@ -1178,7 +1183,11 @@ export const videos = [
     file: "/evidence/videos/video-07.mp4",
     poster: "/evidence/videos/video-07.jpg",
   },
-
+  {
+    title: "I was teaching SOLID principles",
+    caption: "",
+    youtube: "YRO1Eiskj9E?si=aV18Usp1bMDjzcRX",
+  },
 ];
 export const screenshots = [
   {
@@ -1205,7 +1214,7 @@ export const screenshots = [
   },
   {
     file: "/evidence/screenshots/shot-06.jpg",
-    caption: "Follow-up message after a tutoring session",
+    caption: "On standby! Availing myself for anything from the students",
   },
   {
     file: "/evidence/screenshots/shot-07.jpg",
@@ -1249,7 +1258,7 @@ export const screenshots = [
   },
   {
     file: "/evidence/screenshots/shot-16.jpg",
-    caption: "Eish, my Advanced Diploma took longer than expected",
+    caption: "Eish, my Advanced Diploma class took longer than expected",
   },
   {
     file: "/evidence/screenshots/shot-17.jpg",
